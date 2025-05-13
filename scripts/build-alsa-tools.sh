@@ -90,7 +90,7 @@ build_and_install() {
 
     # if Makefile exists then we can just run make
     if [ ! -f "$repo_dir/Makefile" ]; then
-        (cd "$repo_dir" && ./gitcompile $configure_args $target_args) || \
+        (cd "$repo_dir" && autoreconf -vfi && ./configure $configure_args $target_args && make) || \
             { echo "configure failed in $repo_dir"; exit 1; }
     else
         (cd "$repo_dir" && make -j) || { echo "make failed in $repo_dir"; exit 1; }
