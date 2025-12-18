@@ -589,14 +589,10 @@ __cold int ipc_comp_connect(struct ipc *ipc, ipc_pipe_comp_connect *_connect)
 	 * in case of DP -> LL
 	 *	size = 2*ibs of destination (LL) module. DP queue will handle obs of DP module
 	 */
-	if (source->ipc_config.proc_domain == COMP_PROCESSING_DOMAIN_LL) {
-		if (src_id == 0x5)
-			buf_size = MAX(ibs, obs) * 2 * 12;
-		else
-			buf_size = MAX(ibs, obs) * 2;
-	} else {
+	if (source->ipc_config.proc_domain == COMP_PROCESSING_DOMAIN_LL)
+		buf_size = MAX(ibs, obs) * 2;
+	else
 		buf_size = ibs * 2;
-	}
 
 	buffer = ipc4_create_buffer(source, cross_core_bind, buf_size, bu->extension.r.src_queue,
 				    bu->extension.r.dst_queue, dp_heap);
