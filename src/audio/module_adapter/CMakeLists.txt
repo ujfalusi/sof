@@ -35,6 +35,10 @@ endif()
 
 	zephyr_library_sources_ifdef(CONFIG_SOF_COMPRESS_CODEC_PCM_DEC
 		module/compress_other/xa_pcm_dec.c)
+	
+	if (CONFIG_CADENCE_CODEC_FLAC_DEC)
+		zephyr_library_import(xa_flac_dec ${CONFIG_CADENCE_CODEC_FLAC_DEC_LIB})
+	endif()
 
 	if (CONFIG_COMP_DOLBY_DAX_AUDIO_PROCESSING)
 		if(CONFIG_COMP_DOLBY_DAX_AUDIO_PROCESSING STREQUAL "m" AND DEFINED CONFIG_LLEXT)
@@ -143,6 +147,10 @@ if(NOT CONFIG_COMP_MODULE_SHARED_LIBRARY_BUILD)
 
 		if(CONFIG_CADENCE_CODEC_VORBIS_DEC)
 			sof_add_static_library(xa_vorbis_dec ${CONFIG_CADENCE_CODEC_VORBIS_DEC_LIB})
+		endif()
+
+		if(CONFIG_CADENCE_CODEC_FLAC_DEC)
+			sof_add_static_library(xa_flac_dec ${CONFIG_CADENCE_CODEC_FLAC_DEC_LIB})
 		endif()
 
 		if(CONFIG_CADENCE_CODEC_SRC_PP)
