@@ -17,7 +17,8 @@ mp3.conf          - MP3 decoder and encoder
 aac.conf          - AAC decoder
 vorbis.conf       - Vorbis decoder
 pcm.conf          - PCM (WAV) decoder
-all_codecs.conf   - All supported codecs (MP3, AAC, Vorbis, PCM)
+flac.conf         - FLAC decoder
+all_codecs.conf   - All supported codecs (MP3, AAC, Vorbis, pcm, FLAC)
 
 Usage Examples
 --------------

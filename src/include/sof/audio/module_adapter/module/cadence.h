@@ -31,6 +31,7 @@ extern xa_codec_func_t xa_mp3_dec;
 extern xa_codec_func_t xa_mp3_enc;
 extern xa_codec_func_t xa_sbc_dec;
 extern xa_codec_func_t xa_vorbis_dec;
+extern xa_codec_func_t xa_flac_dec;
 extern xa_codec_func_t xa_src_pp;
 extern xa_codec_func_t xa_pcm_dec;
 
@@ -87,6 +88,7 @@ enum cadence_api_id {
 	 * codecs.
 	 */
 	SOF_COMPRESS_CODEC_PCM_DEC_ID	= 0xC0,
+	CADENCE_CODEC_FLAC_DEC_ID	= 0x0B,
 };
 
 #if CONFIG_IPC_MAJOR_4
