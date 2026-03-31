@@ -462,6 +462,14 @@ PREPROCESS_PLUGINS=nhlt,NHLT_BIN=nhlt-sof-ptl-rt722-4ch-echoref.bin,DMIC0_ENHANC
 EFX_DMIC0_TDFB_PARAMS=line4_pass,EFX_DMIC0_DRC_PARAMS=dmic_default,\
 SDW_JACK_ECHO_REF=true,SDW_SPK_ECHO_REF=true,SDW_ECHO_REF_DAI=true"
 
+"cavs-sdw\;sof-ptl-rt722-4ch-dax\;PLATFORM=ptl,SDW_DMIC=1,NUM_SDW_AMP_LINKS=1,NUM_DMICS=4,\
+PDM1_MIC_A_ENABLE=1,PDM1_MIC_B_ENABLE=1,DMIC0_ID=5,DMIC1_ID=6,HDMI1_ID=7,HDMI2_ID=8,HDMI3_ID=9,\
+SDW_AMP_FEEDBACK=false,SDW_SPK_STREAM=Playback-SmartAmp,SDW_DMIC_STREAM=Capture-SmartMic,\
+SDW_JACK_OUT_STREAM=Playback-SimpleJack,SDW_JACK_IN_STREAM=Capture-SimpleJack,\
+PREPROCESS_PLUGINS=nhlt,NHLT_BIN=nhlt-sof-ptl-rt722-4ch-dax.bin,DMIC0_ENHANCED_CAPTURE=true,\
+EFX_DMIC0_TDFB_PARAMS=line4_pass,EFX_DMIC0_DRC_PARAMS=dmic_default,\
+SDW_SPK_ENHANCED_PLAYBACK=true,USE_DAX=true,DOLBY_DAX_CORE_ID=0"
+
 # Soundwire topologies with compressed support
 "cavs-sdw\;sof-arl-cs42l43-l0-compr\;PLATFORM=mtl,NUM_SDW_AMP_LINKS=1,SDW_DMIC=1,\
 SDW_AMP_FEEDBACK=false,SDW_SPK_STREAM=Playback-SmartAmp,SDW_DMIC_STREAM=Capture-SmartMic,\
