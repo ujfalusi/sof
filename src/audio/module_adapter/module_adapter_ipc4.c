@@ -155,9 +155,11 @@ int module_adapter_init_data(struct comp_dev *dev,
 	dst->base_cfg = cfg->base_cfg;
 	dst->size = cfgsz;
 
-	/* Host-supplied channel count indexes PLATFORM_MAX_CHANNELS arrays. */
-	if (dst->base_cfg.audio_fmt.channels_count == 0 ||
-	    dst->base_cfg.audio_fmt.channels_count > PLATFORM_MAX_CHANNELS) {
+	/* Host-supplied channel count indexes PLATFORM_MAX_CHANNELS
+	 * arrays. Allow zero channel count since the probes module
+	 * has its whole base set to zero.
+	 */
+	if (dst->base_cfg.audio_fmt.channels_count > PLATFORM_MAX_CHANNELS) {
 		comp_err(dev, "invalid channels count %u",
 			 dst->base_cfg.audio_fmt.channels_count);
 		return -EINVAL;
