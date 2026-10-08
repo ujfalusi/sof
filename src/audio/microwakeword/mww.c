@@ -566,6 +566,20 @@ static int mww_process(struct processing_module *mod,
 		return 0;
 	}
 
+	/* cavs25 DNM: run only detector slot 0 (strawberry); drain other slots. */
+	if (cd->wov_slot_id != 0) {
+		size_t avail = source_get_data_available(sources[0]);
+
+		if (avail > 0) {
+			const void *dp, *bs;
+			size_t bsz;
+
+			if (source_get_data(sources[0], avail, &dp, &bs, &bsz) == 0)
+				source_release_data(sources[0], avail);
+		}
+		return 0;
+	}
+
 	if (cd->paused) {
 		cd->window_peak_prob = 0.0f;
 		cd->score_hop_counter = 0;
