@@ -84,6 +84,16 @@ static mfcc_source_func mfcc_find_source_func(enum sof_ipc_frame source_format)
 	return NULL;
 }
 
+/* cavs25 single-core budget only: map WoV detector pipeline id to slot index. */
+static inline uint8_t mfcc_get_slot_id(struct comp_dev *dev)
+{
+	if (dev->ipc_config.pipeline_id >= 101 && dev->ipc_config.pipeline_id <= 103)
+		return (uint8_t)(dev->ipc_config.pipeline_id - 101);
+	if (dev->ipc_config.pipeline_id >= 111 && dev->ipc_config.pipeline_id <= 113)
+		return (uint8_t)(dev->ipc_config.pipeline_id - 111);
+	return 0;
+}
+
 /*
  * End of MFCC setup code. Next the standard component methods.
  */
@@ -179,6 +189,20 @@ static int mfcc_process(struct processing_module *mod,
 #endif
 
 	comp_dbg(dev, "start");
+
+	/* cavs25 DNM: run only detector slot 0 (strawberry); drain other slots. */
+	if (mfcc_get_slot_id(dev) != 0) {
+		size_t avail = source_get_data_available(sources[0]);
+
+		if (avail > 0) {
+			const void *data_ptr, *buf_start;
+			size_t buf_size;
+
+			if (source_get_data(sources[0], avail, &data_ptr, &buf_start, &buf_size) == 0)
+				source_release_data(sources[0], avail);
+		}
+		return 0;
+	}
 
 	/* In compress mode, retry pending output first and avoid producing
 	 * new frames until previous frame has been committed. In legacy
