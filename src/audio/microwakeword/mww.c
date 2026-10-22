@@ -200,6 +200,8 @@ struct mww_comp_data {
 
 	/* Telemetry counters */
 	uint32_t total_inferences;
+	uint32_t warmup_inferences;
+	uint32_t max_warmup_inferences;
 	uint32_t vad_gated_inferences;
 	uint32_t detections;
 	uint32_t kpb_trigger_events;
@@ -284,7 +286,15 @@ static void on_wov_ctrl(void *arg, enum notify_id id, void *data)
 	} else if (n->cmd == WOV_ARB_CMD_RESUME) {
 		comp_info(dev, "mww slot %u: resumed by arbiter", cd->wov_slot_id);
 		cd->paused = false;
+		cd->feature_slices_filled = 0;
+		cd->vad_history = 0;
+		cd->warmup_inferences = 0;
+		cd->score_hop_counter = 0;
+		cd->window_peak_prob = 0.0f;
+		cd->current_score_idx = 0;
+		cd->last_notified_score_idx = 0;
 		memset(cd->prob_hist, 0, sizeof(cd->prob_hist));
+		memset(cd->feature_buf, 0, sizeof(cd->feature_buf));
 		MWW_Reset(&cd->mwc);
 	}
 }
@@ -376,8 +386,9 @@ __cold static void mww_log_summary_at_shutdown(struct processing_module *mod)
 		return;
 
 	snprintk(summary_buf, sizeof(summary_buf),
-		 "[MWW STREAM SHUTDOWN SUMMARY] Total Inferences=%u | VAD Gated=%u | Detections=%u | KPB Triggers=%u | Arena Used=%zu/%zu B (slot %u)",
-		 cd->total_inferences, cd->vad_gated_inferences,
+		 "[MWW STREAM SHUTDOWN SUMMARY] Total Inferences=%u | Warmup=%u (max=%u) | VAD Gated=%u | Detections=%u | KPB Triggers=%u | Arena Used=%zu/%zu B (slot %u)",
+		 cd->total_inferences, cd->warmup_inferences, cd->max_warmup_inferences,
+		 cd->vad_gated_inferences,
 		 cd->detections, cd->kpb_trigger_events,
 		 MWW_ArenaUsedBytes(&cd->mwc), MWW_ArenaCapacity(&cd->mwc),
 		 cd->wov_slot_id);
@@ -857,6 +868,9 @@ static int mww_process(struct processing_module *mod,
 			cd->feature_slices_filled = 0;
 
 			cd->total_inferences++;
+			cd->warmup_inferences++;
+			if (cd->warmup_inferences > cd->max_warmup_inferences)
+				cd->max_warmup_inferences = cd->warmup_inferences;
 			cd->mwc.audio_features = cd->feature_buf;
 			cd->mwc.audio_data_size = MWW_FEATURE_ELEM_COUNT;
 
@@ -906,7 +920,7 @@ static int mww_process(struct processing_module *mod,
 				prob_avg += cd->prob_hist[i];
 			prob_avg /= MWW_DETECT_AVG_LEN;
 
-			if (cd->total_inferences > MWW_WARMUP_INFERENCES &&
+			if (cd->warmup_inferences > MWW_WARMUP_INFERENCES &&
 			    prob_avg >= MWW_DETECT_THRESHOLD) {
 				cd->detections++;
 				comp_info(dev, "MWW keyword detected: avg probability=%d pct (slot %u, total=%u)",
@@ -957,6 +971,8 @@ static int mww_reset(struct processing_module *mod)
 	cd->vad_history = 0;
 	memset(cd->prob_hist, 0, sizeof(cd->prob_hist));
 	cd->total_inferences = 0;
+	cd->warmup_inferences = 0;
+	cd->max_warmup_inferences = 0;
 	cd->score_hop_counter = 0;
 	cd->window_peak_prob = 0.0f;
 	cd->current_score_idx = 0;
